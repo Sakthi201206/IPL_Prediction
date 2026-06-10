@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>IPL Winner Predictor</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🏏 IPL Winner Predictor</h1>
+
+    <form action="/predict" method="POST">
+
+        <input
+            type="number"
+            name="season_year"
+            placeholder="Season Year"
+            required>
+
+        <select name="city" required>
+            {% for city in cities %}
+            <option value="{{ city }}">{{ city }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="venue" required>
+            {% for venue in venues %}
+            <option value="{{ venue }}">{{ venue }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="match_type" required>
+            {% for match in match_types %}
+            <option value="{{ match }}">{{ match }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="team1" id="team1" required>
+            {% for team in teams %}
+            <option value="{{ team }}">{{ team }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="team2" id="team2" required>
+            {% for team in teams %}
+            <option value="{{ team }}">{{ team }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="toss_winner_is_team1">
+            <option value="1">Team 1 Won Toss</option>
+            <option value="0">Team 2 Won Toss</option>
+        </select>
+
+        <select name="bat_first">
+            <option value="1">Team 1 Bats First</option>
+            <option value="0">Team 2 Bats First</option>
+        </select>
+
+        <button type="submit">
+            Predict Winner
+        </button>
+
+    </form>
+
+    {% if winner %}
+
+    <div class="result">
+
+        <h2>🏆 Predicted Winner</h2>
+
+        <h1>{{ winner }}</h1>
+
+        <div class="probability">
+
+            <p>{{ team1_name }}</p>
+            <div class="bar">
+                <div class="fill"
+                     style="width: {{ team1_prob }}%">
+                </div>
+            </div>
+            <span>{{ team1_prob }}%</span>
+
+            <p>{{ team2_name }}</p>
+            <div class="bar">
+                <div class="fill"
+                     style="width: {{ team2_prob }}%">
+                </div>
+            </div>
+            <span>{{ team2_prob }}%</span>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+<script>
+
+document.querySelector("form")
+.addEventListener("submit", function(e){
+
+    let team1 =
+        document.getElementById("team1").value;
+
+    let team2 =
+        document.getElementById("team2").value;
+
+    if(team1 === team2){
+        alert(
+          "Team 1 and Team 2 cannot be the same"
+        );
+        e.preventDefault();
+    }
+
+});
+
+</script>
+
+</body>
+</html>
