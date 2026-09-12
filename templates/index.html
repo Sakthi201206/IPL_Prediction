@@ -15,12 +15,6 @@
 
     <form action="/predict" method="POST">
 
-        <input
-            type="number"
-            name="season_year"
-            placeholder="Season Year"
-            required>
-
         <select name="city" required>
             {% for city in cities %}
             <option value="{{ city }}">{{ city }}</option>
@@ -51,14 +45,16 @@
             {% endfor %}
         </select>
 
-        <select name="toss_winner_is_team1">
-            <option value="1">Team 1 Won Toss</option>
-            <option value="0">Team 2 Won Toss</option>
+        <select name="toss_winner" required>
+            {% for team in teams %}
+            <option value="{{ team }}">{{ team }}</option>
+            {% endfor %}
         </select>
 
-        <select name="bat_first">
-            <option value="1">Team 1 Bats First</option>
-            <option value="0">Team 2 Bats First</option>
+        <select name="toss_decision" required>
+            {% for decision in toss_decisions %}
+            <option value="{{ decision }}">{{ decision }}</option>
+            {% endfor %}
         </select>
 
         <button type="submit">

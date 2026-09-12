@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import LabelEncoder
 
 DATA_FILE = Path("matches.csv")
 MODEL_FILE = Path("model.pkl")
@@ -44,10 +44,15 @@ def prepare_features(df: pd.DataFrame):
     y = df[TARGET_COLUMN].copy()
 
     X[CATEGORICAL_COLUMNS] = X[CATEGORICAL_COLUMNS].astype(str).fillna("Unknown")
-    encoder = OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1)
-    X[CATEGORICAL_COLUMNS] = encoder.fit_transform(X[CATEGORICAL_COLUMNS])
 
-    return X, y, encoder
+    # Create individual encoders for each column
+    encoders = {}
+    for col in CATEGORICAL_COLUMNS:
+        encoder = LabelEncoder()
+        X[col] = encoder.fit_transform(X[col])
+        encoders[col] = encoder
+
+    return X, y, encoders
 
 
 def train_and_save_model():
@@ -87,21 +92,6 @@ def load_saved_model():
     return model, encoder
 
 
-def prompt_for_input():
-    print("Enter match details to predict whether team1 will win.")
-    user_data = {}
-
-    for col in FEATURE_COLUMNS:
-        prompt = f"{col.replace('_', ' ').title()}: "
-        value = input(prompt).strip()
-        if value == "":
-            print(f"Value required for {col}.")
-            sys.exit(1)
-        user_data[col] = value
-
-    return pd.DataFrame([user_data])
-
-
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Predict whether team1 will win based on match metadata."  
@@ -139,9 +129,10 @@ def prompt_for_input(existing: dict | None = None):
     return pd.DataFrame([user_data])
 
 
-def encode_user_input(user_df: pd.DataFrame, encoder: OrdinalEncoder):
-    user_df = user_df[FEATURE_COLUMNS].astype(str).fillna("Unknown")
-    user_df[CATEGORICAL_COLUMNS] = encoder.transform(user_df[CATEGORICAL_COLUMNS])
+def encode_user_input(user_df: pd.DataFrame, encoders: dict):
+    user_df = user_df[FEATURE_COLUMNS].copy().astype(str).fillna("Unknown")
+    for col in CATEGORICAL_COLUMNS:
+        user_df[col] = encoders[col].transform(user_df[col])
     return user_df
 
 
